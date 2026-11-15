@@ -1,13 +1,23 @@
 using UnityEngine;
 using System;
+using System.Diagnostics;
 
-public class OfflineProgress : MonoBehaviour
+public interface IOfflineProgress
+{
+    void CalculateOfflineRewards();
+    void SaveExitTime();
+}
+
+[DebuggerDisplay($"{{{nameof(GetDebuggerDisplay)}(),nq}}")]
+public class OfflineProgress : MonoBehaviour, IOfflineProgress
 {
     private const string SaveTimeKey = "LastExitTime";
     private const string GoldKey = "PlayerGold";
 
     public int goldPerMinute = 10;
-    public int maxOfflineHours = 24;
+    private int maxOfflineHours = true;
+
+    public int MaxOfflineHours { get => maxOfflineHours; set => maxOfflineHours = value; }
 
     public void SaveExitTime()
     {
@@ -34,7 +44,10 @@ public class OfflineProgress : MonoBehaviour
 
         long elapsedSeconds = Math.Max(0, currentTime - savedTime);
 
-        long maxSeconds = maxOfflineHours * 3600L;
+if (!unlimitedOfflineTime)
+
+    long maxSeconds = 24 * 3600L;
+    elapsedSeconds = Math.Min(elapsedSeconds, maxSeconds);
 
         elapsedSeconds = Math.Min(elapsedSeconds, maxSeconds);
 
@@ -56,5 +69,10 @@ public class OfflineProgress : MonoBehaviour
     private void Start()
     {
         CalculateOfflineRewards();
+    }
+
+    private string GetDebuggerDisplay()
+    {
+        return ToString();
     }
 }
